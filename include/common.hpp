@@ -14,6 +14,11 @@
 #include <math.h>
 #include "smartsoc/ssne_api.h"
 
+// 如果宏未在 SDK 中提前定义，我们在此提供备用定义以防编译报错
+#ifndef SSNE_UINT8
+#define SSNE_UINT8 0
+#endif
+
 struct FaceDetectionResult {
     float x;
     float y;
