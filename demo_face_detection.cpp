@@ -59,8 +59,7 @@ void keyboard_listener()
 	cout << "Press key to control..." << endl;
 
 	string input;
-	while (true) {
-		cin >> input;
+	while (cin >> input) {
 		lock_guard<mutex> lock(g_mtx);
 
 		if (input == "q" || input == "Q") {
@@ -138,13 +137,21 @@ int main(int argc, char **argv)
 		std::vector<std::array<float, 4> > osd_boxes;
 		std::vector<FaceDetectionResult> results;
 
+				float current_threshold;
+		bool show_box;
+		{
+			lock_guard<mutex> lock(g_mtx);
+			current_threshold = g_config.confidence_threshold;
+			show_box = g_config.show_detection_box;
+		}
+
 		if (g_phase == PHASE_RUNNING) {
 			// 执行 AI 推理
-			detector.Predict(&img_sensor, results);
+			detector.Predict(&img_sensor, results, current_threshold);
 
 			// 过滤并准备 OSD 绘制数据
 			for (const auto &res : results) {
-				if (res.confidence >= g_config.confidence_threshold) {
+				if (res.confidence >= current_threshold) {
 					float x1 = res.x;
 					float y1 = res.y;
 					float x2 = res.x + res.width;
@@ -161,7 +168,7 @@ int main(int argc, char **argv)
 			}
 
 			// 在屏幕上绘制检测框
-			if (g_config.show_detection_box) {
+			if (show_box) {
 				visualizer.Draw(osd_boxes);
 			} else {
 				visualizer.Draw({}); // 清空图层
@@ -171,7 +178,7 @@ int main(int argc, char **argv)
 		frame_count++;
 		if (frame_count % g_config.display_interval == 0) {
 			printf("[Frame %d] Active Detections: %zu | Conf: %.2f\n", frame_count, osd_boxes.size(),
-			       g_config.confidence_threshold);
+			       current_threshold);
 		}
 
 		usleep(1000); // 稍微出让 CPU 资源
@@ -179,7 +186,7 @@ int main(int argc, char **argv)
 
 	// 6. 资源释放
 	if (listener_thread.joinable()) {
-		listener_thread.join();
+		listener_thread.detach();
 	}
 
 	cout << "[SYS] Cleaning up resources..." << endl;

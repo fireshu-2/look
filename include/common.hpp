@@ -38,7 +38,7 @@ class FACE_DETECTOR {
   public:
     std::string ModelName() const { return "face_detector"; }
 
-    void Predict(ssne_tensor_t* img_in, std::vector<FaceDetectionResult>& out_results);
+    void Predict(ssne_tensor_t* img_in, std::vector<FaceDetectionResult>& out_results, float conf_threshold = 0.45f);
 
     void Initialize(std::string& model_path, std::array<int, 2>* in_img_shape,
                     std::array<int, 2>* in_det_shape);
