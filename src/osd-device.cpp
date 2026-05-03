@@ -135,7 +135,12 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 
 		if (osd_create_layer(m_osd_handle, (ssLAYER_HANDLE)i, &layer) == 0) {
 			osd_set_layer_buffer(m_osd_handle, (ssLAYER_HANDLE)i, m_layer_dma[i]);
-			osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, true); // 默认开启显示
+			// 仅默认开启图形图层(0,1)，图像图层(2,3)默认关闭，避免空数据(全0)导致YUV全屏绿屏
+			if (i < 2) {
+				osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, true);
+			} else {
+				osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, false);
+			}
 		} else {
 			printf("[OSD ERROR] Failed to create layer %d\n", i);
 		}
@@ -228,6 +233,7 @@ void OsdDevice::DrawTexture(const char *bitmap_path, const char *lut_path, int l
 
 	osd_add_texture_layer(m_osd_handle, (ssLAYER_HANDLE)layer_id, &bm);
 	osd_flush_texture_layer(m_osd_handle, (ssLAYER_HANDLE)layer_id);
+	osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)layer_id, true);
 }
 
 // ==================== Box Helper ====================
