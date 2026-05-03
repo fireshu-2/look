@@ -1,6 +1,6 @@
 ﻿/*
  * FINAL STABLE VERSION - OSD DEVICE
- * 
+ *
  * 主要特性与修复记录：
  * 1. 内存优化：严格控制 DMA 缓冲大小，避免 4MB CMA 内存溢出 (OOM) 导致 SegFault。
  * 2. 颜色表加载：修复了向底层驱动传递字符串路径的致命 Bug，现改为将 LUT 文件正确读入内存。
@@ -76,7 +76,7 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 			fseek(fp, 0, SEEK_SET);
 
 			// 使用 uint8_t 匹配头文件中的定义
-			m_pcolor_lut = new uint8_t[m_file_size];
+			m_pcolor_lut = new uint8_t[1024]; memset(m_pcolor_lut, 0, 1024);
 			size_t read_bytes = fread(m_pcolor_lut, 1, m_file_size, fp);
 			if (read_bytes != (size_t)m_file_size) {
 				printf("[OSD WARN] Read LUT file size mismatch!\n");

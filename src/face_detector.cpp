@@ -10,31 +10,8 @@
 
 // YOLOv8 640x640 标准 anchor 数
 #define NUM_ANCHORS 8400
-#define NMS_THRESHOLD 0.60f
-
-// 形态过滤参数 (对齐 Python 版)
-#define MIN_BOX_AREA 800
-#define MIN_PERSON_WIDTH 16
-#define MIN_PERSON_HEIGHT 38
-#define MIN_PERSON_ASPECT 1.05f
-#define MAX_PERSON_ASPECT 5.20f
-
-static bool valid_person_box(float w, float h)
-{
-	float area = w * h;
-	if (area < MIN_BOX_AREA) return false;
-	if (w < MIN_PERSON_WIDTH) return false;
-	if (h < MIN_PERSON_HEIGHT) return false;
-
-	float aspect = h / w;
-	if (aspect < MIN_PERSON_ASPECT || aspect > MAX_PERSON_ASPECT) return false;
-
-	// 只过滤特别小、特别细长的竖条，避免把小行人过滤掉
-	if (area < 1600 && w < 22 && aspect > 3.8f) return false;
-	if (w < 14 && aspect > 4.5f) return false;
-
-	return true;
-}
+#define DETECTION_THRESHOLD 0.45f
+#define NMS_THRESHOLD 0.45f
 
 static float iou(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
 {
@@ -49,7 +26,7 @@ static float iou(float x1, float y1, float w1, float h1, float x2, float y2, flo
 	return area_i / area_u;
 }
 
-void FACE_DETECTOR::Initialize(std::string &model_path, std::array<int, 2> *in_img_shape, std::array<int, 2> *in_det_shape)
+void FACE_DETECTOR::Initialize(std::string model_path, std::array<int, 2> *in_img_shape, std::array<int, 2> *in_det_shape)
 {
 	img_shape = *in_img_shape;
 	det_shape = *in_det_shape;
@@ -95,7 +72,7 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 		return;
 	}
 
-	// 3. 获取多输出张量
+	// 3. 获取单输出张量
 	ssne_getoutput(model_id, 6, outputs);
 	float *data = (float *)get_data(outputs[0]);
 
