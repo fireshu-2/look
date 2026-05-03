@@ -10,7 +10,31 @@
 
 // YOLOv8 640x640 标准 anchor 数
 #define NUM_ANCHORS 8400
-#define NMS_THRESHOLD 0.45f
+#define NMS_THRESHOLD 0.60f
+
+// 形态过滤参数 (对齐 Python 版)
+#define MIN_BOX_AREA 800
+#define MIN_PERSON_WIDTH 16
+#define MIN_PERSON_HEIGHT 38
+#define MIN_PERSON_ASPECT 1.05f
+#define MAX_PERSON_ASPECT 5.20f
+
+static bool valid_person_box(float w, float h)
+{
+	float area = w * h;
+	if (area < MIN_BOX_AREA) return false;
+	if (w < MIN_PERSON_WIDTH) return false;
+	if (h < MIN_PERSON_HEIGHT) return false;
+
+	float aspect = h / w;
+	if (aspect < MIN_PERSON_ASPECT || aspect > MAX_PERSON_ASPECT) return false;
+
+	// 只过滤特别小、特别细长的竖条，避免把小行人过滤掉
+	if (area < 1600 && w < 22 && aspect > 3.8f) return false;
+	if (w < 14 && aspect > 4.5f) return false;
+
+	return true;
+}
 
 static float iou(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
 {
@@ -91,11 +115,18 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 		float w = data[2 * NUM_ANCHORS + i];
 		float h = data[3 * NUM_ANCHORS + i];
 
+		// 在原图坐标系下验证尺寸
+		float w_scaled = w * sx;
+		float h_scaled = h * sy;
+
+		if (!valid_person_box(w_scaled, h_scaled))
+			continue;
+
 		FaceDetectionResult res;
 		res.x = (cx - w * 0.5f) * sx;
 		res.y = (cy - h * 0.5f) * sy;
-		res.width = w * sx;
-		res.height = h * sy;
+		res.width = w_scaled;
+		res.height = h_scaled;
 		res.confidence = score;
 		proposals.push_back(res);
 	}
