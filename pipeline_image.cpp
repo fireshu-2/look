@@ -18,6 +18,8 @@ void IMAGEPROCESSOR::Initialize(std::array<int, 2>* in_img_shape) {
 
     OnlineSetOutputImage(kPipeline0, format_online, img_width, img_height);
 
+    UpdateOnlineParam(kPipeline0);
+
     int res0 = OpenOnlinePipeline(kPipeline0);
     if (res0 != 0) {
         printf("[ERROR] Failed to open online pipeline!\n");
