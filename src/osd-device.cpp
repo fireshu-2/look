@@ -196,8 +196,8 @@ void OsdDevice::Draw(std::vector<OsdQuadRangle> &qs, int layer_id)
 	osd_flush_quad_rangle_layer(m_osd_handle, (ssLAYER_HANDLE)layer_id);
 }
 
-void OsdDevice::Draw(std::vector<std::array<float, 4> > &boxes, int border, int layer_id, tagQUADRANGLETYPE type,
-		     tagALPHATYPE alpha, int color)
+void OsdDevice::Draw(std::vector<std::array<float, 4> > &boxes, int border, int layer_id, fdevice::QUADRANGLETYPE type,
+		     fdevice::ALPHATYPE alpha, int color)
 {
 	std::lock_guard<std::mutex> lock(g_osd_mutex);
 	if (m_osd_handle == 0 || layer_id < 0 || layer_id >= OSD_LAYER_COUNT)
