@@ -26,7 +26,7 @@ static float iou(float x1, float y1, float w1, float h1, float x2, float y2, flo
 	return area_i / area_u;
 }
 
-void FACE_DETECTOR::Initialize(std::string model_path, std::array<int, 2> *in_img_shape, std::array<int, 2> *in_det_shape)
+void FACE_DETECTOR::Initialize(std::string& model_path, std::array<int, 2> *in_img_shape, std::array<int, 2> *in_det_shape)
 {
 	img_shape = *in_img_shape;
 	det_shape = *in_det_shape;
@@ -92,18 +92,12 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 		float w = data[2 * NUM_ANCHORS + i];
 		float h = data[3 * NUM_ANCHORS + i];
 
-		// 在原图坐标系下验证尺寸
-		float w_scaled = w * sx;
-		float h_scaled = h * sy;
-
-		if (!valid_person_box(w_scaled, h_scaled))
-			continue;
 
 		FaceDetectionResult res;
 		res.x = (cx - w * 0.5f) * sx;
 		res.y = (cy - h * 0.5f) * sy;
-		res.width = w_scaled;
-		res.height = h_scaled;
+		res.width = w * sx;
+		res.height = h * sy;
 		res.confidence = score;
 		proposals.push_back(res);
 	}
