@@ -54,3 +54,12 @@ class FACE_DETECTOR {
     std::array<int, 2> img_shape;
     std::array<int, 2> det_shape;
 };
+// Helper function to validate detection boxes
+inline bool valid_person_box(float width, float height, float x, float y, int img_width, int img_height) {
+    if (width <= 0 || height <= 0 || x < 0 || y < 0) return false;
+    if (x >= img_width || y >= img_height) return false;
+    // Example logical constraints:
+    // A person's box should realistically not take up less than a tiny fraction of the screen, etc.
+    if (width < 10 || height < 10) return false;
+    return true;
+}
