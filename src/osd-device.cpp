@@ -77,8 +77,9 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 
 			// 使用 uint8_t 匹配头文件中的定义
 			m_pcolor_lut = new uint8_t[1024]; memset(m_pcolor_lut, 0, 1024);
-			size_t read_bytes = fread(m_pcolor_lut, 1, m_file_size, fp);
-			if (read_bytes != (size_t)m_file_size) {
+			size_t read_len = std::min<size_t>(m_file_size, 1024);
+			size_t read_bytes = fread(m_pcolor_lut, 1, read_len, fp);
+			if (read_bytes != read_len) {
 				printf("[OSD WARN] Read LUT file size mismatch!\n");
 			}
 			fclose(fp);
