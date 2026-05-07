@@ -14,9 +14,13 @@ void IMAGEPROCESSOR::Initialize(std::array<int, 2>* in_img_shape) {
 
     uint16_t img_width = static_cast<uint16_t>(img_shape[0]);
     uint16_t img_height = static_cast<uint16_t>(img_shape[1]);
+
+    // 恢复为原厂支持的 YUV422 16bit 格式。
+    // SSNE_UINT8 会导致底层 [S1ImageCapture] 报错 error code=655 并拒绝打开通道。
     format_online = SSNE_YUV422_16;
 
     OnlineSetOutputImage(kPipeline0, format_online, img_width, img_height);
+    UpdateOnlineParam(); // 保持应用参数不变
 
     int res0 = OpenOnlinePipeline(kPipeline0);
     if (res0 != 0) {

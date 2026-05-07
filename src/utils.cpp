@@ -45,10 +45,10 @@ void VISUALIZER::Draw(const std::vector<std::array<float, 4>>& boxes) {
     for (size_t i = 0; i < boxes.size(); i++) {
         sst::device::osd::OsdQuadRangle q;
 
-        int xmin = static_cast<int>(boxes[i][0]);
-        int ymin = static_cast<int>(boxes[i][1]);
-        int xmax = static_cast<int>(boxes[i][2]);
-        int ymax = static_cast<int>(boxes[i][3]);
+        float xmin = static_cast<float>(boxes[i][0]);
+        float ymin = static_cast<float>(boxes[i][1]);
+        float xmax = static_cast<float>(boxes[i][2]);
+        float ymax = static_cast<float>(boxes[i][3]);
 
         q.box = {xmin, ymin, xmax, ymax};
 

@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 
 		if (g_phase == PHASE_RUNNING) {
 			// 执行 AI 推理
-			detector.Predict(&img_sensor, results);
+			detector.Predict(&img_sensor, results, g_config.confidence_threshold);
 
 			// 过滤并准备 OSD 绘制数据
 			for (const auto &res : results) {
