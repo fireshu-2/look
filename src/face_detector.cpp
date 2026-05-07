@@ -99,6 +99,10 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 		res.width = w * sx;
 		res.height = h * sy;
 		res.confidence = score;
+
+		if (!valid_person_box(res.width, res.height, res.x, res.y, img_shape[0], img_shape[1]))
+			continue;
+
 		proposals.push_back(res);
 	}
 
