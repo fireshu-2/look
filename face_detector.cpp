@@ -1,5 +1,6 @@
 #include "../include/common.hpp"
 #include "../include/utils.hpp"
+#include "../include/math_utils.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -12,19 +13,6 @@
 #define NUM_ANCHORS 8400
 #define DETECTION_THRESHOLD 0.45f
 #define NMS_THRESHOLD 0.45f
-
-static float iou(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
-{
-	float xi = std::max(x1, x2);
-	float yi = std::max(y1, y2);
-	float wi = std::min(x1 + w1, x2 + w2) - xi;
-	float hi = std::min(y1 + h1, y2 + h2) - yi;
-	if (wi <= 0 || hi <= 0)
-		return 0.0f;
-	float area_i = wi * hi;
-	float area_u = w1 * h1 + w2 * h2 - area_i;
-	return area_i / area_u;
-}
 
 void FACE_DETECTOR::Initialize(std::string &model_path, std::array<int, 2> *in_img_shape, std::array<int, 2> *in_det_shape)
 {
@@ -73,8 +61,8 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 	}
 
 	// 3. 获取单输出张量
-	ssne_getoutput(model_id, 1, outputs);
-	float *data = (float *)get_data(outputs[0]);
+	ssne_getoutput(model_id, 6, outputs);
+	float *data = (float *)get_data(outputs[5]);
 
 	std::vector<FaceDetectionResult> proposals;
 
@@ -125,6 +113,8 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 void FACE_DETECTOR::Release()
 {
 	release_tensor(inputs[0]);
-	release_tensor(outputs[0]);
+	for (int i = 0; i < 6; i++) {
+		release_tensor(outputs[i]);
+	}
 	ReleaseAIPreprocessPipe(pipe_offline);
 }
