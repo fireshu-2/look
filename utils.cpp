@@ -11,12 +11,23 @@
 #include <iomanip>
 #include <cstdio>
 
+static bool is_valid_asset_path(const std::string& path) {
+    if (path.empty()) return true;
+    if (path.front() == '/') return false;
+    if (path.find("..") != std::string::npos) return false;
+    return true;
+}
+
 void VISUALIZER::Initialize(std::array<int, 2>& in_img_shape, const std::string& bitmap_lut_path) {
     m_width = in_img_shape[0];
     m_height = in_img_shape[1];
 
     const char* lut_path = nullptr;
     if (!bitmap_lut_path.empty()) {
+        if (!is_valid_asset_path(bitmap_lut_path)) {
+            std::cerr << "[ERROR] Invalid asset path: " << bitmap_lut_path << std::endl;
+            return;
+        }
         m_bitmap_lut_path_full = "/app_demo/app_assets/" + bitmap_lut_path;
         lut_path = m_bitmap_lut_path_full.c_str();
     }
@@ -89,6 +100,10 @@ void VISUALIZER::DrawFixedSquare(int x_min, int y_min, int x_max, int y_max, int
 
 void VISUALIZER::DrawBitmap(const std::string& bitmap_path, const std::string& lut_path,
                             int pos_x, int pos_y, int layer_id) {
+    if (!is_valid_asset_path(bitmap_path)) {
+        std::cerr << "[ERROR] Invalid asset path: " << bitmap_path << std::endl;
+        return;
+    }
     std::string full_bitmap_path = "/app_demo/app_assets/" + bitmap_path;
     const char* full_lut_path = nullptr;
 
