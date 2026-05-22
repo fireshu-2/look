@@ -68,6 +68,9 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 	}
 
 // 🌟 核心修复：将 LUT 文件读取到内存中
+	m_pcolor_lut = new uint8_t[1024];
+	memset(m_pcolor_lut, 0, 1024);
+
 	if (lut_path != nullptr && strlen(lut_path) > 0) {
 		FILE *fp = fopen(lut_path, "rb");
 		if (fp != nullptr) {
@@ -76,9 +79,9 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 			fseek(fp, 0, SEEK_SET);
 
 			// 使用 uint8_t 匹配头文件中的定义
-			m_pcolor_lut = new uint8_t[m_file_size];
-			size_t read_bytes = fread(m_pcolor_lut, 1, m_file_size, fp);
-			if (read_bytes != (size_t)m_file_size) {
+			size_t read_size = std::min<size_t>(m_file_size, 1024);
+			size_t read_bytes = fread(m_pcolor_lut, 1, read_size, fp);
+			if (read_bytes != read_size) {
 				printf("[OSD WARN] Read LUT file size mismatch!\n");
 			}
 			fclose(fp);
@@ -135,7 +138,7 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 
 		if (osd_create_layer(m_osd_handle, (ssLAYER_HANDLE)i, &layer) == 0) {
 			osd_set_layer_buffer(m_osd_handle, (ssLAYER_HANDLE)i, m_layer_dma[i]);
-			osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, true); // 默认开启显示
+			osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, i < 2); // 仅默认开启前两层，防止空数据导致的绿屏
 		} else {
 			printf("[OSD ERROR] Failed to create layer %d\n", i);
 		}
