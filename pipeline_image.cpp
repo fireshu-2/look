@@ -5,7 +5,7 @@
  * @Date: 2025-12-30 14-57-47
  * @Copyright (c) 2025 SmartSens
  */
-#include "../include/common.hpp"
+#include "common.hpp"
 #include <iostream>
 #include <unistd.h>
 

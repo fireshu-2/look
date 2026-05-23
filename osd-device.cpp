@@ -16,7 +16,7 @@
 #include <mutex>
 #include <cstdio>
 
-#include "../include/osd-device.hpp"
+#include "osd-device.hpp"
 
 using namespace fdevice;
 
