@@ -16,7 +16,7 @@
 #include <mutex>
 #include <cstdio>
 
-#include "../include/osd-device.hpp"
+#include "osd-device.hpp"
 
 using namespace fdevice;
 
@@ -76,13 +76,14 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 			fseek(fp, 0, SEEK_SET);
 
 			// 使用 uint8_t 匹配头文件中的定义
-			m_pcolor_lut = new uint8_t[m_file_size];
-			size_t read_bytes = fread(m_pcolor_lut, 1, m_file_size, fp);
-			if (read_bytes != (size_t)m_file_size) {
+			m_pcolor_lut = new uint8_t[1024]();
+			size_t to_read = std::min<size_t>(m_file_size, 1024);
+			size_t read_bytes = fread(m_pcolor_lut, 1, to_read, fp);
+			if (read_bytes != to_read) {
 				printf("[OSD WARN] Read LUT file size mismatch!\n");
 			}
 			fclose(fp);
-			printf("[OSD INFO] Successfully loaded LUT file: %s (Size: %d bytes)\n", lut_path, m_file_size);
+			printf("[OSD INFO] Successfully loaded LUT file: %s (Size: %zu bytes)\n", lut_path, read_bytes);
 		} else {
 			printf("[OSD WARN] Failed to open LUT file: %s. Using default.\n", lut_path);
 		}
@@ -135,7 +136,7 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 
 		if (osd_create_layer(m_osd_handle, (ssLAYER_HANDLE)i, &layer) == 0) {
 			osd_set_layer_buffer(m_osd_handle, (ssLAYER_HANDLE)i, m_layer_dma[i]);
-			osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, true); // 默认开启显示
+			osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, (i < 2)); // 默认开启显示0和1层
 		} else {
 			printf("[OSD ERROR] Failed to create layer %d\n", i);
 		}
