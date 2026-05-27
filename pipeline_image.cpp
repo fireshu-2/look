@@ -5,7 +5,7 @@
  * @Date: 2025-12-30 14-57-47
  * @Copyright (c) 2025 SmartSens
  */
-#include "../include/common.hpp"
+#include "common.hpp"
 #include <iostream>
 #include <unistd.h>
 
@@ -17,6 +17,7 @@ void IMAGEPROCESSOR::Initialize(std::array<int, 2>* in_img_shape) {
     format_online = SSNE_YUV422_16;
 
     OnlineSetOutputImage(kPipeline0, format_online, img_width, img_height);
+    UpdateOnlineParam(kPipeline0);
 
     int res0 = OpenOnlinePipeline(kPipeline0);
     if (res0 != 0) {
