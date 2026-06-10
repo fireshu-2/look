@@ -49,7 +49,7 @@ void FACE_DETECTOR::Initialize(std::string &model_path, std::array<int, 2> *in_i
 	SetCrop(pipe_offline, 0, 0, img_shape[0], img_shape[1]);
 	SetNormalize(pipe_offline, model_id);
 
-	printf("[INFO] FACE_DETECTOR Initialized (Single Output Mode). DType: %d\n", model_dtype);
+	printf("[INFO] FACE_DETECTOR Initialized (6 Output Mode). DType: %d\n", model_dtype);
 }
 
 void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult> &out_results)
@@ -72,9 +72,9 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 		return;
 	}
 
-	// 3. 获取单输出张量
-	ssne_getoutput(model_id, 1, outputs);
-	float *data = (float *)get_data(outputs[0]);
+	// 3. 获取6输出张量
+	ssne_getoutput(model_id, 6, outputs);
+	float *data = (float *)get_data(outputs[5]);
 
 	std::vector<FaceDetectionResult> proposals;
 
@@ -125,6 +125,8 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 void FACE_DETECTOR::Release()
 {
 	release_tensor(inputs[0]);
-	release_tensor(outputs[0]);
+	for (int i = 0; i < 6; i++) {
+		release_tensor(outputs[i]);
+	}
 	ReleaseAIPreprocessPipe(pipe_offline);
 }
