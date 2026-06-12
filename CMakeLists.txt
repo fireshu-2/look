@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 
 project(ssne_ai_demo)
 
-include(cmake_config/Paths.cmake)
+include(Paths.cmake)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 add_compile_options(-Wno-psabi)
