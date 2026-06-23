@@ -1,5 +1,5 @@
-#include "../include/common.hpp"
-#include "../include/utils.hpp"
+#include "common.hpp"
+#include "utils.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -72,9 +72,9 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 		return;
 	}
 
-	// 3. 获取单输出张量
-	ssne_getoutput(model_id, 1, outputs);
-	float *data = (float *)get_data(outputs[0]);
+	// 3. 获取6个输出张量，YOLOv8 人脸检测数据在第6个张量 (index 5)
+	ssne_getoutput(model_id, 6, outputs);
+	float *data = (float *)get_data(outputs[5]);
 
 	std::vector<FaceDetectionResult> proposals;
 
@@ -125,6 +125,8 @@ void FACE_DETECTOR::Predict(ssne_tensor_t *img, std::vector<FaceDetectionResult>
 void FACE_DETECTOR::Release()
 {
 	release_tensor(inputs[0]);
-	release_tensor(outputs[0]);
+	for (int i = 0; i < 6; ++i) {
+		release_tensor(outputs[i]);
+	}
 	ReleaseAIPreprocessPipe(pipe_offline);
 }
