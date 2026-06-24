@@ -5,7 +5,7 @@
  * @Date: 2025-12-30 14-57-47
  * @Copyright (c) 2025 SmartSens
  */
-#include "../include/utils.hpp"
+#include "utils.hpp"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
