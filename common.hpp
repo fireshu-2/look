@@ -48,7 +48,7 @@ class FACE_DETECTOR {
   private:
     uint16_t model_id = 0;
     ssne_tensor_t inputs[1];
-    ssne_tensor_t outputs[1];
+    ssne_tensor_t outputs[6];
     AiPreprocessPipe pipe_offline = GetAIPreprocessPipe();
 
     std::array<int, 2> img_shape;
