@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 
 project(ssne_ai_demo)
 
-include(cmake_config/Paths.cmake)
+include(Paths.cmake)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 add_compile_options(-Wno-psabi)
@@ -20,8 +20,12 @@ if(EXISTS "${SDK_ROOT}/third_party/include")
 endif()
 
 # ================== 源文件 ==================
-set(SRC_DIR "src")
-file(GLOB SRC_FILES "${CMAKE_SOURCE_DIR}/${SRC_DIR}/*.cpp")
+set(SRC_FILES
+    face_detector.cpp
+    osd-device.cpp
+    pipeline_image.cpp
+    utils.cpp
+)
 target_sources(ssne_ai_demo PRIVATE ${SRC_FILES})
 
 # ================== 库搜索路径 ==================

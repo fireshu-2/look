@@ -19,7 +19,8 @@
 #include <ctime>
 #include <vector>
 #include <atomic>
-#include "include/utils.hpp"
+#include "utils.hpp"
+#include "common.hpp"
 
 using namespace std;
 

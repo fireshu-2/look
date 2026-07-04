@@ -10,7 +10,9 @@
 #include <vector>
 #include <string>
 
+extern "C" {
 #include "osd_lib_api.h"
+}
 #include "common.hpp"
 
 #define BUFFER_TYPE_DMABUF  0x1

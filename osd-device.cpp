@@ -1,6 +1,6 @@
-﻿/*
+/*
  * FINAL STABLE VERSION - OSD DEVICE
- * 
+ *
  * 主要特性与修复记录：
  * 1. 内存优化：严格控制 DMA 缓冲大小，避免 4MB CMA 内存溢出 (OOM) 导致 SegFault。
  * 2. 颜色表加载：修复了向底层驱动传递字符串路径的致命 Bug，现改为将 LUT 文件正确读入内存。
@@ -16,7 +16,7 @@
 #include <mutex>
 #include <cstdio>
 
-#include "../include/osd-device.hpp"
+#include "osd-device.hpp"
 
 using namespace fdevice;
 
@@ -75,10 +75,12 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 			m_file_size = ftell(fp);
 			fseek(fp, 0, SEEK_SET);
 
-			// 使用 uint8_t 匹配头文件中的定义
-			m_pcolor_lut = new uint8_t[m_file_size];
-			size_t read_bytes = fread(m_pcolor_lut, 1, m_file_size, fp);
-			if (read_bytes != (size_t)m_file_size) {
+			// 强制分配 1024 字节大小的 LUT，防止 Out-of-Bounds 且必须刚好是 256 色*4 字节的固定大小
+			m_pcolor_lut = new uint8_t[1024];
+			memset(m_pcolor_lut, 0, 1024);
+			size_t read_len = std::min<size_t>(m_file_size, 1024);
+			size_t read_bytes = fread(m_pcolor_lut, 1, read_len, fp);
+			if (read_bytes != read_len) {
 				printf("[OSD WARN] Read LUT file size mismatch!\n");
 			}
 			fclose(fp);
@@ -135,7 +137,12 @@ void OsdDevice::Initialize(int width, int height, const char *lut_path)
 
 		if (osd_create_layer(m_osd_handle, (ssLAYER_HANDLE)i, &layer) == 0) {
 			osd_set_layer_buffer(m_osd_handle, (ssLAYER_HANDLE)i, m_layer_dma[i]);
-			osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, true); // 默认开启显示
+			// i >= 2 的未使用的层，如果直接启用会导致全绿屏，默认禁用
+			if (i >= 2) {
+				osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, false);
+			} else {
+				osd_enable_layer(m_osd_handle, (ssLAYER_HANDLE)i, true);
+			}
 		} else {
 			printf("[OSD ERROR] Failed to create layer %d\n", i);
 		}
